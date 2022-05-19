@@ -19,48 +19,60 @@ namespace cry::math {
 
         Vector(Vector&&) noexcept = default;
 
+        explicit Vector(const std::array<T, N>& data) : _data(data) {}
+
+        template<typename ...Args>
+        explicit Vector(Args&& ... args) : _data{std::forward<Args>(args)...} {}
+
         ~Vector() = default;
 
-        Vector& operator=(const Vector&) = default;
+        Vector& operator=(const Vector& rhs) {
+            _data = rhs._data;
+            return *this;
+        }
 
+        Vector& operator=(Vector&& rhs) noexcept {
+            _data = std::move(rhs._data);
+            return *this;
+        }
 
-        template<typename = std::enable_if_t<N >= 1>>
-        T getX() const {
+        const T& getX() const {
+            static_assert(N >= 1);
             return _data[0];
         }
 
-        template<typename = std::enable_if_t<N >= 1>>
         void setX(T x) {
+            static_assert(N >= 1);
             _data[0] = x;
         }
 
-        template<typename = std::enable_if_t<N >= 2>>
-        T getY() const {
+        const T& getY() const {
+            static_assert(N >= 2);
             return _data[1];
         }
 
-        template<typename = std::enable_if_t<N >= 2>>
         void setY(T y) {
+            static_assert(N >= 2);
             _data[1] = y;
         }
 
-        template<typename = std::enable_if_t<N >= 3>>
-        T getZ() const {
+        const T& getZ() const {
+            static_assert(N >= 3);
             return _data[2];
         }
 
-        template<typename = std::enable_if_t<N >= 3>>
         void setZ(T z) {
+            static_assert(N >= 3);
             _data[2] = z;
         }
 
-        template<typename = std::enable_if_t<N >= 4>>
-        T getW() const {
+        const T& getW() const {
+            static_assert(N >= 4);
             return _data[3];
         }
 
-        template<typename = std::enable_if_t<N >= 4>>
         void setW(T w) {
+            static_assert(N >= 4);
             _data[3] = w;
         }
 
@@ -78,6 +90,7 @@ namespace cry::math {
 
         Vector<T, N> normalize() const {
             double length = getLength();
+            assert(!almostEqual(length, 0));
             Vector<T, N> result;
             for (size_t i = 0; i < N; ++i) {
                 result._data[i] = _data[i] / length;
@@ -109,6 +122,13 @@ namespace cry::math {
         Vector<T, N>& operator/=(const Vector<T, N>& other) {
             for (size_t i = 0; i < N; ++i) {
                 _data[i] /= other._data[i];
+            }
+            return *this;
+        }
+
+        Vector<T, N>& operator/=(T scalar) {
+            for (size_t i = 0; i < N; ++i) {
+                _data[i] /= scalar;
             }
             return *this;
         }
@@ -184,7 +204,7 @@ namespace cry::math {
 
         bool operator==(const Vector<T, N>& other) const {
             for (size_t i = 0; i < N; ++i) {
-                if (_data[i] != other._data[i]) {
+                if (!almostEqual(_data[i], other._data[i])) {
                     return false;
                 }
             }
@@ -203,8 +223,8 @@ namespace cry::math {
             return result;
         }
 
-        template<typename = std::enable_if_t<N == 3>>
         [[nodiscard]] Vector<T, N> cross(const Vector<T, N>& other) const {
+            static_assert(N == 3, "Cross product only defined for 3D vectors");
             Vector<T, N> result;
             result._data[0] = _data[1] * other._data[2] - _data[2] * other._data[1];
             result._data[1] = _data[2] * other._data[0] - _data[0] * other._data[2];
@@ -217,15 +237,20 @@ namespace cry::math {
         }
 
     private:
+        bool almostEqual(T a, T b) const {
+            return std::abs(a - b) < std::numeric_limits<T>::epsilon();
+        }
+
+    private:
         std::array<T, N> _data;
     };
 
-    template<typename Type = float>
+    template<class Type = float>
     using Vector2 = Vector<Type, 2>;
     using Vector2f = Vector2<float>;
     using Vector2d = Vector2<double>;
 
-    template<typename Type = float>
+    template<class Type = float>
     using Vector3 = Vector<Type, 3>;
     using Vector3f = Vector3<float>;
     using Vector3d = Vector3<double>;
