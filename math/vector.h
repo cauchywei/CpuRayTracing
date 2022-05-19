@@ -2,6 +2,7 @@
 
 #include <array>
 #include <cmath>
+#include "common.h"
 
 namespace cry::math {
 
@@ -89,8 +90,8 @@ namespace cry::math {
         }
 
         Vector<T, N> normalize() const {
-            double length = getLength();
-            assert(!almostEqual(length, 0));
+            const auto length = getLength();
+            assert(!almostEqual(length, static_cast<decltype(length)>(0)));
             Vector<T, N> result;
             for (size_t i = 0; i < N; ++i) {
                 result._data[i] = _data[i] / length;
@@ -234,11 +235,6 @@ namespace cry::math {
 
         [[nodiscard]] T operator[](size_t index) const {
             return _data[index];
-        }
-
-    private:
-        bool almostEqual(T a, T b) const {
-            return std::abs(a - b) < std::numeric_limits<T>::epsilon();
         }
 
     private:
