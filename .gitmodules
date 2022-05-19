@@ -1,0 +1,4 @@
+[submodule "third_party/svpng"]
+	path = third_party/svpng
+	url = https://github.com/miloyip/svpng
+	ignore = untracked
