@@ -10,8 +10,8 @@ namespace crt {
         return discriminant > 0;
     }
 
-    bool Sphere::intersect(const Ray& ray, float& outDistance) const {
-        const Vector3f& oc = ray.getOrigin() - _center;
+    bool Sphere::intersect(const Ray& ray, float& outT) const {
+        const auto& oc = ray.getOrigin() - _center;
         const float a = ray.getDirection().dot(ray.getDirection());
         const float b = 2.0f * oc.dot(ray.getDirection());
         const float c = oc.dot(oc) - _radius * _radius;
@@ -20,7 +20,7 @@ namespace crt {
             return false;
         }
         if (discriminant == 0.0f) {
-            outDistance = -b / (2.0f * a);
+            outT = -b / (2.0f * a);
             return true;
         } else {
             const float t1 = (-b - std::sqrt(discriminant)) / (2.0f * a);
@@ -29,14 +29,27 @@ namespace crt {
                 return false;
             }
             if (t1 < 0.0f) {
-                outDistance = t2;
+                outT = t2;
             } else if (t2 < 0.0f) {
-                outDistance = t1;
+                outT = t1;
             } else {
-                outDistance = std::min(t1, t2);
+                outT = std::min(t1, t2);
             }
             return true;
         }
     }
+
+    bool Sphere::hit(const Ray& ray, float tMin, float tMax, HitRecord& outRecord) const {
+        float t;
+        if (intersect(ray, t) && t >= tMin && t <= tMax) {
+            outRecord.t = t;
+            outRecord.p = ray.getPoint(t);
+            outRecord.normal = (outRecord.p - _center) / _radius;
+            outRecord.material = _material;
+            return true;
+        }
+        return false;
+    }
+
 }
 

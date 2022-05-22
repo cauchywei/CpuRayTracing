@@ -18,6 +18,10 @@ namespace crt {
             return _direction;
         }
 
+        [[nodiscard]] constexpr Vector3f getPoint(float t) const {
+            return _origin + _direction * t;
+        }
+
     private:
         Vector3f _origin;
         Vector3f _direction;

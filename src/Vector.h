@@ -136,6 +136,22 @@ namespace crt {
             return result;
         }
 
+        Vector<T, N> constexpr max(const Vector<T, N>& other) const {
+            Vector<T, N> result;
+            for (size_t i = 0; i < N; ++i) {
+                result._data[i] = std::max(_data[i], other._data[i]);
+            }
+            return result;
+        }
+
+        Vector<T, N> constexpr min(const Vector<T, N>& other) const {
+            Vector<T, N> result;
+            for (size_t i = 0; i < N; ++i) {
+                result._data[i] = std::min(_data[i], other._data[i]);
+            }
+            return result;
+        }
+
         Vector<T, N>& operator+=(const Vector<T, N>& other) {
             for (size_t i = 0; i < N; ++i) {
                 _data[i] += other._data[i];
