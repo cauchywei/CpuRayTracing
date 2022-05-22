@@ -5,9 +5,13 @@
 namespace crt {
     class Plane : public Surface {
     public:
-        constexpr Plane(const Vector3f& normal, const Vector3f& point) : _normal(normal), _point(point) {}
+        constexpr Plane(const Vector3f& normal, const Vector3f& point, const Material& material = {}) : _normal(normal),
+                                                                                                        _point(point),
+                                                                                                        _material(material) {}
 
-        constexpr Plane(Vector3f&& normal, Vector3f&& point) : _normal(std::move(normal)), _point(std::move(point)) {}
+        constexpr Plane(Vector3f&& normal, Vector3f&& point, Material&& material = {}) : _normal(std::move(normal)),
+                                                                                         _point(std::move(point)),
+                                                                                         _material(std::move(material)) {}
 
         [[nodiscard]] const Vector3f& getNormal() const {
             return _normal;
@@ -32,6 +36,7 @@ namespace crt {
                 outRecord.t = t;
                 outRecord.p = ray.getPoint(t);
                 outRecord.normal = _normal;
+                outRecord.material = _material;
                 return true;
             }
             return false;
@@ -40,6 +45,7 @@ namespace crt {
     private:
         Vector3f _normal;
         Vector3f _point;
+        Material _material;
     };
 
     using PlanePtr = std::shared_ptr<Plane>;

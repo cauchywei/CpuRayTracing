@@ -269,6 +269,24 @@ namespace crt {
             return !operator==(other);
         }
 
+        bool operator>(const Vector<T, N>& other) const {
+            for (size_t i = 0; i < N; ++i) {
+                if (_data[i] <= other._data[i]) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        bool operator>(T scalar) const {
+            for (size_t i = 0; i < N; ++i) {
+                if (_data[i] <= scalar) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         [[nodiscard]] T constexpr dot(const Vector<T, N>& other) const {
             T result = 0;
             for (size_t i = 0; i < N; ++i) {

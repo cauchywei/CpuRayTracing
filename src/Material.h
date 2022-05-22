@@ -7,16 +7,22 @@
 namespace crt {
     class Material {
     public:
-        constexpr Material(Vector3f ambient, Vector3f diffuse, Vector3f specular, float shininess)
+        constexpr Material(Vector3f ambient,
+                           Vector3f diffuse,
+                           Vector3f specular,
+                           float shininess,
+                           float reflectivity = 0)
                 : _ambient(std::move(ambient)),
                   _diffuse(std::move(diffuse)),
                   _specular(std::move(specular)),
-                  _shininess(shininess) {}
+                  _shininess(shininess),
+                  _reflectivity(reflectivity) {}
 
         constexpr Material() : _ambient{0.01f, 0.01f, 0.01f},
                                _diffuse{0.8f, 0.8f, 0.8f},
                                _specular{0.0f, 0.0f, 0.0f},
-                               _shininess{0.0f} {}
+                               _shininess{0.0f},
+                               _reflectivity(0.0f) {}
 
 
         [[nodiscard]] constexpr const Vector3f& getAmbient() const { return _ambient; }
@@ -28,16 +34,18 @@ namespace crt {
 
         [[nodiscard]] constexpr float getShininess() const { return _shininess; }
 
+        [[nodiscard]] constexpr float getReflectivity() const { return _reflectivity; }
+
         [[nodiscard]] constexpr Material cloneWithShininess(float shininess) const {
-            return {_ambient, _diffuse, _specular, shininess};
+            return {_ambient, _diffuse, _specular, shininess, _reflectivity};
         }
 
         [[nodiscard]] constexpr Material cloneWithAmbient(Vector3f ambient) const {
-            return {ambient, _diffuse, _specular, _shininess};
+            return {ambient, _diffuse, _specular, _shininess, _reflectivity};
         }
 
         [[nodiscard]] constexpr Material cloneWithDiffuse(Vector3f diffuse) const {
-            return {_ambient, diffuse, _specular, _shininess};
+            return {_ambient, diffuse, _specular, _shininess, _reflectivity};
         }
 
     private:
@@ -46,5 +54,6 @@ namespace crt {
         Vector3f _specular;
 //        float _emission;
         float _shininess;
+        float _reflectivity;
     };
 }
