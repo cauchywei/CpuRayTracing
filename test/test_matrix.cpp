@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "../math/matrix.h"
+#include "../src/Matrix.h"
 
-using namespace cry::math;
+using namespace crt;
 
-TEST(CryTest, Matrix2) {
+TEST(crtTest, Matrix2) {
     {
         Matrix2f m;
         ASSERT_FLOAT_EQ(m(0, 0), 0.0f);
@@ -41,7 +41,7 @@ TEST(CryTest, Matrix2) {
     }
 }
 
-TEST(CryTest, Matrix3f) {
+TEST(crtTest, Matrix3f) {
     auto m1 = Matrix3f(
             1.0f, 2.0f, 3.0f,
             4.0f, 5.0f, 6.0f,

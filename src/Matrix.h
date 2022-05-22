@@ -3,7 +3,7 @@
 #include <cstddef>
 #include <array>
 
-namespace cry::math {
+namespace crt {
     template<typename T, size_t R, size_t C>
     class Matrix {
     public:
@@ -205,6 +205,51 @@ namespace cry::math {
                 }
             }
             return true;
+        }
+
+        T determinant() const {
+            static_assert(R == C, "Only square matrix can have determinant");
+
+            if (R == 1) {
+                return (*this)(0, 0);
+            } else if constexpr(R == 4) {
+                T const _3142_3241(_data[8] * _data[13] - _data[9] * _data[12]);
+                T const _3143_3341(_data[8] * _data[14] - _data[10] * _data[12]);
+                T const _3144_3441(_data[8] * _data[15] - _data[11] * _data[12]);
+                T const _3243_3342(_data[9] * _data[14] - _data[10] * _data[13]);
+                T const _3244_3442(_data[9] * _data[15] - _data[11] * _data[13]);
+                T const _3344_3443(_data[10] * _data[15] - _data[11] * _data[14]);
+
+                return _data[0] * (_data[5] * _3344_3443 - _data[6] * _3244_3442 + _data[7] * _3243_3342)
+                       - _data[1] * (_data[4] * _3344_3443 - _data[6] * _3144_3441 + _data[7] * _3143_3341)
+                       + _data[2] * (_data[4] * _3244_3442 - _data[5] * _3144_3441 + _data[7] * _3142_3241)
+                       - _data[3] * (_data[4] * _3243_3342 - _data[5] * _3143_3341 + _data[6] * _3142_3241);
+            } else {
+                T result = 0;
+                for (size_t i = 0; i < R; ++i) {
+                    result += (*this)(0, i) * this->cofactor(0, i);
+                }
+                return result;
+            }
+        }
+
+        T cofactor(size_t row, size_t col) const {
+            static_assert(R == C, "Only square matrix can have determinant");
+
+            if (R == 1) {
+                return (*this)(0, 0);
+            }
+
+            Matrix<T, R - 1, C - 1> subMatrix;
+            for (size_t r = 0; r < R; ++r) {
+                for (size_t c = 0; c < C; ++c) {
+                    if (r != row && c != col) {
+                        subMatrix(r, c) = (*this)(r, c);
+                    }
+                }
+            }
+
+            return (row + col) % 2 == 0 ? subMatrix.determinant() : -subMatrix.determinant();
         }
 
     private:

@@ -1,9 +1,9 @@
 #include <gtest/gtest.h>
-#include "../math/vector.h"
+#include "../src/Vector.h"
 
-using namespace cry::math;
+using namespace crt;
 
-TEST(CryTest, Vector2) {
+TEST(crtTest, Vector2) {
     {
         Vector2f v;
         ASSERT_FLOAT_EQ(v.getX(), 0.0f);
@@ -148,7 +148,7 @@ TEST(CryTest, Vector2) {
 
 }
 
-TEST(CryTest, Vector3) {
+TEST(crtTest, Vector3) {
     {
         Vector3f v;
         ASSERT_FLOAT_EQ(v.getX(), 0.0f);

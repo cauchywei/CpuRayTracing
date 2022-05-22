@@ -121,7 +121,7 @@ _deps
 ### Windows template
 # Windows thumbnail cache files
 Thumbs.db
-Thumbs.db:encryptable
+Thumbs.db:encrtptable
 ehthumbs.db
 ehthumbs_vista.db
 
