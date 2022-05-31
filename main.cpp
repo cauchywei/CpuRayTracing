@@ -7,12 +7,13 @@
 
 #include "third_party/svpng/svpng.inc"
 #include "src/Scene.h"
+#include "src/Texture2D.h"
 
 #include <vector>
 #include <iostream>
 #include <thread>
 
-#define MAX_REFLECTIONS 10
+#define MAX_REFLECTIONS 5
 #define REFLECTION_RAY_EPSILON 0.006
 
 using namespace crt;
@@ -23,9 +24,9 @@ struct LightSource {
     Vector3f color;
 };
 
-static Vector3f rayColor(const Scene& scene,
-                         const std::vector<LightSource>& lightSources,
-                         const Ray& ray,
+static Vector3f rayColor(const Scene &scene,
+                         const std::vector<LightSource> &lightSources,
+                         const Ray &ray,
                          float tMin,
                          float tMax,
                          int depth = 0) {
@@ -33,15 +34,15 @@ static Vector3f rayColor(const Scene& scene,
     HitRecord shadowHitRecord{};
     Vector3f color{};
     if (scene.hit(ray, tMin, tMax, hitRecord)) {
-        const auto& hitPoint = hitRecord.p;
-        const auto& normal = hitRecord.normal;
+        const auto &hitPoint = hitRecord.p;
+        const auto &normal = hitRecord.normal;
 
-        Material& material = hitRecord.material;
+        Material &material = hitRecord.material;
         color = material.getAmbient();
 
-        for (const auto& lightSource: lightSources) {
+        for (const auto &lightSource: lightSources) {
             const auto l = (lightSource.position - hitPoint).normalize();
-            const Ray& shadowRay = Ray(hitPoint, l);
+            const Ray &shadowRay = Ray(hitPoint, l);
             if (!scene.hit(shadowRay,
                            REFLECTION_RAY_EPSILON,
                            std::numeric_limits<float>::max(), shadowHitRecord)) {
@@ -49,11 +50,11 @@ static Vector3f rayColor(const Scene& scene,
 
                 const auto v = (ray.getOrigin() - hitPoint).normalize();
                 const auto h = (l + v).normalize();
-                auto specularColor = material.getSpecular() *
-                        lightSource.color * std::pow(normal.dot(h),
-                                                     material.getShininess());
+                auto specularColor =
+                                     lightSource.color * std::pow(normal.dot(h),
+                                                                  material.getShininess());
 
-                if (depth < MAX_REFLECTIONS && material.getReflectivity() > 0.0f) {
+                if (depth < MAX_REFLECTIONS && material.getSpecular() > 0.0f) {
                     const auto r = ray.getDirection() - normal * 2 * normal.dot(ray.getDirection());
                     const auto reflectedRay = Ray(hitPoint, r);
                     const auto reflectedColor = rayColor(scene, lightSources,
@@ -61,25 +62,52 @@ static Vector3f rayColor(const Scene& scene,
                                                          REFLECTION_RAY_EPSILON,
                                                          std::numeric_limits<float>::max(),
                                                          depth + 1);
-                    color += reflectedColor * material.getReflectivity();
-                }
-                else
-                {
+                    specularColor += lightSource.color * reflectedColor;
                 }
 
-                color += material.getDiffuse() * diffuseColor + material.getSpecular() * specularColor;
+                color += (material.getDiffuse() * diffuseColor + material.getSpecular() * specularColor);
             }
         }
 
+        color *= hitRecord.color;
 
         color = color.min(Vector3f{1.0f, 1.0f, 1.0f});
     }
     return color;
 }
 
+auto loadMoonTexture() {
+    const auto width = 1024;
+    const auto height = 512;
+    std::vector<unsigned char> data;
+    auto *fp = fopen("../resource/moon-1024-512-rgb24.raw", "r");
+    assert(fp);
+    fseek(fp, 0, SEEK_END);
+    auto size = ftell(fp);
+    assert(size == width * height * 3);
+    rewind(fp);
+    data.resize(size);
+    fread(data.data(), 1, size, fp);
+    fclose(fp);
+
+    std::vector<Vector3f> pixels;
+    pixels.resize(width * height);
+    for (int i = 0; i < width * height; ++i) {
+        pixels[i] = Vector3f{
+                static_cast<float>(data[i * 3 + 0]) / 255.0f,
+                static_cast<float>(data[i * 3 + 1]) / 255.0f,
+                static_cast<float>(data[i * 3 + 2]) / 255.0f
+        };
+    }
+
+    return std::make_shared<Texture2D>(width, height, pixels);
+}
+
 int main() {
 
-    const float scale = 4.0f;
+    auto moonTexture = loadMoonTexture();
+
+    const float scale = 1.0f;
     SizeI outputPixelSize = {static_cast<int>(640 * scale), static_cast<int>(480 * scale)};
     SizeF cameraFrameSize = {static_cast<float>(outputPixelSize.getWidth()) * 1.0f,
                              static_cast<float>(outputPixelSize.getHeight()) * 1.0f};
@@ -107,10 +135,20 @@ int main() {
     {
         const auto material = Material({0.01f, 0.01f, 0.01f},
                                        {0.8f, 0.2f, 0.2f},
-                                       {.6f, .6f, .6f},
-                                       100.0f);
+                                       {.3f, .3f, .3f},
+                                       200.0f);
         auto sphere = std::make_shared<Sphere>(Vector3f{0.0f, 50.0f, 0.0f}, 50.0f);
         sphere->setMaterial(material);
+        scene.addSurface(sphere);
+    }
+
+    {
+        const auto material = Material({0.3f, 0.3f, 0.3f},
+                                       {0.8f, 0.8f, 0.8f},
+                                       {0.0f, 0.0f, 0.0f},
+                                       0.0f);
+        auto sphere = std::make_shared<Sphere>(Vector3f{80.0f, 30.0f, 50.0f}, 30.0f);
+        sphere->setTexture(moonTexture);
         scene.addSurface(sphere);
     }
 
@@ -122,33 +160,43 @@ int main() {
         scene.addSurface(std::make_shared<Sphere>(Vector3f{130.0f, 50.0f, -50.0f}, 50.0f, material));
     }
 
+
     {
-        const Material& triangleMaterial = Material({0.01f, 0.01f, 0.01f},
+        const Material &triangleMaterial = Material({0.01f, 0.01f, 0.01f},
                                                     {0.0f, 0.0f, 0.0f},
-                                                    {0.8f, 0.8f, 0.8f},
-                                                    50.0f,
-                                                    0.6);
+                                                    {0.6f, 0.6f, 0.6f},
+                                                    50.0f);
 
         std::vector<Vector3f> vertices = {
-            {-200.0f, 0.0f, -200.0f},
-            {100.0f, 0.0f, -280.0f},
-            {-200.0f, 300.0f, -200.0f},
-            {100.0f, 300.0f, -280.0f},
+                {-200.0f, 0.0f,   -200.0f},
+                {100.0f,  0.0f,   -280.0f},
+                {-200.0f, 300.0f, -200.0f},
+                {100.0f,  300.0f, -280.0f},
         };
         scene.addSurface(std::make_shared<Triangle>(vertices[0], vertices[1], vertices[2], triangleMaterial));
         scene.addSurface(std::make_shared<Triangle>(vertices[1], vertices[3], vertices[2], triangleMaterial));
     }
 
+
     {
-        const Material& material = Material({},
-                                                    {0.2f, 0.2f, 0.2f},
-                                                    {0.4f, 0.4f, 0.4f},
-                                                    0.0f,
-                                                    0.03f);
+        const auto material = Material({0.3f, 0.3f, 0.3f},
+                                       {0.8f, 0.8f, 0.8f},
+                                       {0.0f, 0.0f, 0.0f},
+                                       0.0f);
+        auto moonSphere = std::make_shared<Sphere>(Vector3f{350.0f, 200.0f, -500.0f}, 200.0f,
+                                                   material);
+        moonSphere->setTexture(moonTexture);
+        scene.addSurface(moonSphere);
+    }
+
+    {
+        const Material &material = Material({},
+                                            {0.2f, 0.2f, 0.2f},
+                                            {0.03f, 0.03f, 0.03f},
+                                            0.0f);
         scene.addSurface(std::make_shared<Plane>(Vector3f{0.0f, 1.0f, 0.0f},
                                                  Vector3f{0.0f, 0.0f, 0.0f}, material));
     }
-
 
 
     auto outputRGBBuffer = std::make_unique<uint8_t[]>(

@@ -45,10 +45,18 @@ namespace crt {
             outRecord.t = t;
             outRecord.p = ray.getPoint(t);
             outRecord.normal = (outRecord.p - _center) / _radius;
-            outRecord.material = _material;
+            outRecord.material = getMaterial();
+            outRecord.color = getColor(outRecord.p);
             return true;
         }
         return false;
+    }
+
+    Vector2f Sphere::getUV(const Vector3f &p) const{
+        const auto& d = p - _center;
+        const auto phi = std::atan2(d.getZ(), d.getX());
+        const auto theta = std::acos(d.getY() / _radius);
+        return Vector2f(static_cast<float>(1.0f - (phi + M_PI) / (2.0f * M_PI)), static_cast<float>(theta / M_PI));
     }
 
 }

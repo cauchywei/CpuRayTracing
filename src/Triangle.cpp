@@ -2,9 +2,9 @@
 
 namespace crt {
 
-    bool Triangle::intersect(const Ray& ray, float& t, float& u, float& v) const {
-        const auto& v0v1 = _vertices[1] - _vertices[0];
-        const auto& v0v2 = _vertices[2] - _vertices[0];
+    bool Triangle::intersect(const Ray &ray, float &t, float &u, float &v) const {
+        const auto &v0v1 = _vertices[1] - _vertices[0];
+        const auto &v0v2 = _vertices[2] - _vertices[0];
         auto pvec = ray.getDirection().cross(v0v2);
         float det = v0v1.dot(pvec);
 #if 0
@@ -26,17 +26,28 @@ namespace crt {
         return true;
     }
 
-    bool Triangle::hit(const Ray& ray, float tMin, float tMax, HitRecord& outRecord) const {
+    bool Triangle::hit(const Ray &ray, float tMin, float tMax, HitRecord &outRecord) const {
         float t, u, v;
         if (intersect(ray, t, u, v) && t >= tMin && t <= tMax) {
             outRecord.t = t;
             outRecord.u = u;
             outRecord.v = v;
             outRecord.p = ray.getPoint(t);
-            outRecord.normal = getNormal();
-            outRecord.material = _material;
+            outRecord.normal = getNormal(outRecord.p);
+            outRecord.material = getMaterial();
+            outRecord.color = getColor(outRecord.p);
             return true;
         }
         return false;
+    }
+
+    Vector2f Triangle::getUV(const Vector3f &p) const {
+        // calculate uv base on barycentric coordinates
+        const auto &v0v1 = _vertices[1] - _vertices[0];
+        const auto &v0v2 = _vertices[2] - _vertices[0];
+        auto pvec = p - _vertices[0];
+        float u = v0v1.dot(pvec);
+        float v = v0v2.dot(pvec);
+        return {u, v};
     }
 }

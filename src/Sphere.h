@@ -1,17 +1,22 @@
 #pragma once
 
 #include "Surface.h"
+#include "Texture2D.h"
 
 namespace crt {
     class Sphere : public Surface {
     public:
-        constexpr Sphere() : _center(), _radius(0.0f), _material() {}
+        Sphere() : _center(), _radius(0.0f) {}
 
-        constexpr Sphere(const Vector3f& center, float radius, const Material& material = {}) : _center(center), _radius(radius), _material(material) {}
+        Sphere(const Vector3f &center, float radius, const Material &material = {}) : Surface(material),
+                                                                                      _center(center),
+                                                                                      _radius(radius) {}
 
-        constexpr Sphere(Vector3f&& center, float radius, Material&& material = {}) : _center(std::move(center)), _radius(radius), _material(std::move(material)) {}
+        Sphere(Vector3f &&center, float radius, Material &&material = {}) : Surface(std::move(material)),
+                                                                            _center(std::move(center)),
+                                                                            _radius(radius) {}
 
-        [[nodiscard]] constexpr const Vector3f& getCenter() const {
+        [[nodiscard]] constexpr const Vector3f &getCenter() const {
             return _center;
         }
 
@@ -19,33 +24,24 @@ namespace crt {
             return _radius;
         }
 
+        [[nodiscard]] Vector2f getUV(const Vector3f &p) const override;
 
-        [[nodiscard]] const Material& getMaterial() const {
-            return _material;
-        }
 
-        [[nodiscard]] Material& getMaterial() {
-            return _material;
-        }
-
-        void setMaterial(const Material& material) {
-            _material = material;
-        }
-
-        [[nodiscard]] constexpr Vector3f getNormal(const Vector3f& p) const {
+        [[nodiscard]] Vector3f getNormal(const Vector3f &p) const override {
             return (p - _center).normalize();
         }
 
-        [[nodiscard]] bool intersect(const Ray& ray) const;
+        [[nodiscard]] bool intersect(const Ray &ray) const;
 
-        [[nodiscard]] bool intersect(const Ray& ray, float& outT) const;
+        [[nodiscard]] bool intersect(const Ray &ray, float &outT) const;
 
-        bool hit(const Ray& ray, float tMin, float tMax, HitRecord& record) const override;
+        bool hit(const Ray &ray, float tMin, float tMax, HitRecord &record) const override;
+
+    private:
 
     private:
         Vector3f _center;
         float _radius;
-        Material _material;
     };
 
     using SpherePtr = std::shared_ptr<Sphere>;

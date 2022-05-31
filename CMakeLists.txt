@@ -17,6 +17,6 @@ add_executable(CpuRayTracing main.cpp
         src/Sphere.h
         src/Sphere.cpp
         src/Triangle.h
-        src/Triangle.cpp src/Surface.h src/HitRecord.h src/Plane.cpp src/Plane.h src/Material.h src/Scene.cpp src/Scene.h)
+        src/Triangle.cpp src/Surface.h src/HitRecord.h src/Plane.cpp src/Plane.h src/Material.h src/Scene.cpp src/Scene.h src/Texture2D.h src/Texture2D.cpp)
 
 add_subdirectory(test)

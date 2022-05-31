@@ -12,5 +12,6 @@ namespace crt {
         Vector3f p;
         Vector3f normal;
         Material material;
+        Vector3f color;
     };
 }

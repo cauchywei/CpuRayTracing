@@ -5,42 +5,23 @@
 namespace crt {
     class Plane : public Surface {
     public:
-        constexpr Plane(const Vector3f& normal, const Vector3f& point, const Material& material = {}) : _normal(normal),
-                                                                                                        _point(point),
-                                                                                                        _material(material) {}
+        Plane(const Vector3f &normal, const Vector3f &point, const Material &material = {});
 
-        constexpr Plane(Vector3f&& normal, Vector3f&& point, Material&& material = {}) : _normal(std::move(normal)),
-                                                                                         _point(std::move(point)),
-                                                                                         _material(std::move(material)) {}
+        Plane(Vector3f &&normal, Vector3f &&point, Material &&material = {});
 
-        [[nodiscard]] const Vector3f& getNormal() const {
+        Vector2f getUV(const Vector3f &p) const override;
+
+        [[nodiscard]] Vector3f getNormal(const Vector3f &) const override {
             return _normal;
         }
 
-        [[nodiscard]] const Vector3f& getPoint() const {
+        [[nodiscard]] const Vector3f &getPoint() const {
             return _point;
         }
 
-        bool intersect(const Ray& ray, float& t) const {
-            float denom = _normal.dot(ray.getDirection());
-            if (denom < 0) {
-                t = (_point - ray.getOrigin()).dot(_normal) / denom;
-                return t >= 0;
-            }
-            return false;
-        }
+        bool intersect(const Ray &ray, float &t) const;
 
-        bool hit(const Ray& ray, float tMin, float tMax, HitRecord& outRecord) const override {
-            float t;
-            if (intersect(ray, t) && t >= tMin && t <= tMax) {
-                outRecord.t = t;
-                outRecord.p = ray.getPoint(t);
-                outRecord.normal = _normal;
-                outRecord.material = _material;
-                return true;
-            }
-            return false;
-        }
+        bool hit(const Ray &ray, float tMin, float tMax, HitRecord &outRecord) const override;
 
     private:
         Vector3f _normal;
