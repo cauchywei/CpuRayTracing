@@ -11,7 +11,7 @@ namespace crt {
 
         Vector2f getUV(const Vector3f &p) const override;
 
-        [[nodiscard]] Vector3f getNormal(const Vector3f &) const override {
+        [[nodiscard]] Vector3f getNormal(const Vector3f &) const {
             return _normal;
         }
 

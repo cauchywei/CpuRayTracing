@@ -92,6 +92,11 @@ namespace crt {
             _data[3] = w;
         }
 
+        Vector<T, 3> getXYZ() const {
+            static_assert(N >= 3);
+            return Vector<T, 3>(_data[0], _data[1], _data[2]);
+        }
+
         [[nodiscard]] constexpr size_t getSize() const {
             return N;
         }
@@ -123,6 +128,10 @@ namespace crt {
         }
 
         [[nodiscard]] constexpr const T& operator[](size_t index) const {
+            return _data[index];
+        }
+
+        [[nodiscard]] T& operator[](size_t index) {
             return _data[index];
         }
 
@@ -304,6 +313,12 @@ namespace crt {
             return result;
         }
 
+        void swap(Vector<T, N>& other) {
+            for (size_t i = 0; i < N; ++i) {
+                std::swap(_data[i], other._data[i]);
+            }
+        }
+
     private:
         std::array<T, N> _data;
     };
@@ -317,4 +332,10 @@ namespace crt {
     using Vector3 = Vector<Type, 3>;
     using Vector3f = Vector3<float>;
     using Vector3d = Vector3<double>;
+    using Vector3i = Vector3<int>;
+
+    template<class Type = float>
+    using Vector4 = Vector<Type, 4>;
+    using Vector4f = Vector4<float>;
+    using Vector4d = Vector4<double>;
 }

@@ -29,11 +29,6 @@ namespace crt {
         [[nodiscard]] constexpr Vector3f &v1() { return _vertices[0]; }
 
 
-        [[nodiscard]] Vector3f getNormal(const Vector3f &p) const override {
-            // TODO: interpolate normal
-            return (_vertices[1] - _vertices[0]).cross(_vertices[2] - _vertices[0]).normalize();
-        }
-
         Vector2f getUV(const Vector3f &p) const override;
 
         constexpr bool operator==(const Triangle &other) const {

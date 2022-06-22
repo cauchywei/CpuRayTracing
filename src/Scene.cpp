@@ -2,12 +2,19 @@
 
 namespace crt {
     bool Scene::hit(const Ray& ray, float tMin, float tMax, HitRecord& hitRecord) const {
+        auto minT = tMax;
+        HitRecord tempHitRecord;
+        bool hasHit = false;
         for (const auto& surface: _surfaces) {
-            if (surface->hit(ray, tMin, tMax, hitRecord)) {
-                return true;
+            if (surface->hit(ray, tMin, tMax, tempHitRecord)) {
+                hasHit = true;
+                if (tempHitRecord.t < minT) {
+                    hitRecord = tempHitRecord;
+                    minT = tempHitRecord.t;
+                }
             }
         }
-        return false;
+        return hasHit;
     }
 
     bool Scene::hit(const Ray& ray, HitRecord& hitRecord) const {

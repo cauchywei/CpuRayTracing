@@ -9,13 +9,12 @@ namespace crt {
     public:
 
         Scene() = default;
-
         ~Scene() = default;
 
         void addSurface(const SurfacePtr& surface) {
             _surfaces.push_back(surface);
         }
-
+        
         void removeSurface(const SurfacePtr& surface) {
             _surfaces.erase(std::remove(_surfaces.begin(), _surfaces.end(), surface), _surfaces.end());
         }

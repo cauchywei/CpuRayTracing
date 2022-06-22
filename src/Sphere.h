@@ -26,11 +26,6 @@ namespace crt {
 
         [[nodiscard]] Vector2f getUV(const Vector3f &p) const override;
 
-
-        [[nodiscard]] Vector3f getNormal(const Vector3f &p) const override {
-            return (p - _center).normalize();
-        }
-
         [[nodiscard]] bool intersect(const Ray &ray) const;
 
         [[nodiscard]] bool intersect(const Ray &ray, float &outT) const;

@@ -1,39 +1,18 @@
 #include "Triangle.h"
 
+#include "MathUtils.h"
+
 namespace crt {
 
-    bool Triangle::intersect(const Ray &ray, float &t, float &u, float &v) const {
-        const auto &v0v1 = _vertices[1] - _vertices[0];
-        const auto &v0v2 = _vertices[2] - _vertices[0];
-        auto pvec = ray.getDirection().cross(v0v2);
-        float det = v0v1.dot(pvec);
-#if 0
-        //            if (det < std::numeric_limits<decltype<det>>::epsilon()) return false;
-#else
-        if (almostEqual(det, 0.0f)) return false;
-#endif
-        float invDet = 1 / det;
-
-        auto tvec = ray.getOrigin() - _vertices[0];
-        u = tvec.dot(pvec) * invDet;
-        if (u < 0 || u > 1) return false;
-
-        auto qvec = tvec.cross(v0v1);
-        v = ray.getDirection().dot(qvec) * invDet;
-        if (v < 0 || u + v > 1) return false;
-
-        t = v0v2.dot(qvec) * invDet;
-        return true;
-    }
-
-    bool Triangle::hit(const Ray &ray, float tMin, float tMax, HitRecord &outRecord) const {
+    bool Triangle::hit(const Ray& ray, float tMin, float tMax, HitRecord& outRecord) const {
         float t, u, v;
-        if (intersect(ray, t, u, v) && t >= tMin && t <= tMax) {
+        if (MathUtils::rayIntersectsTriangle(ray, _vertices[0], _vertices[1], _vertices[2], t, u, v) && t >= tMin &&
+            t <= tMax) {
             outRecord.t = t;
             outRecord.u = u;
             outRecord.v = v;
             outRecord.p = ray.getPoint(t);
-            outRecord.normal = getNormal(outRecord.p);
+            outRecord.normal = (_vertices[1] - _vertices[0]).cross(_vertices[2] - _vertices[0]).normalize();
             outRecord.material = getMaterial();
             outRecord.color = getColor(outRecord.p);
             return true;
@@ -41,10 +20,10 @@ namespace crt {
         return false;
     }
 
-    Vector2f Triangle::getUV(const Vector3f &p) const {
+    Vector2f Triangle::getUV(const Vector3f& p) const {
         // calculate uv base on barycentric coordinates
-        const auto &v0v1 = _vertices[1] - _vertices[0];
-        const auto &v0v2 = _vertices[2] - _vertices[0];
+        const auto& v0v1 = _vertices[1] - _vertices[0];
+        const auto& v0v2 = _vertices[2] - _vertices[0];
         auto pvec = p - _vertices[0];
         float u = v0v1.dot(pvec);
         float v = v0v2.dot(pvec);

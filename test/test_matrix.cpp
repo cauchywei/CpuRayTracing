@@ -13,7 +13,7 @@ TEST(crtTest, Matrix2) {
     }
     {
         // Test identity
-        Matrix2f m = Matrix2f::MakeIdentity();
+        Matrix2f m = Matrix2f::makeIdentity();
         ASSERT_FLOAT_EQ(m(0, 0), 1.0f);
         ASSERT_FLOAT_EQ(m(1, 0), 0.0f);
         ASSERT_FLOAT_EQ(m(0, 1), 0.0f);
@@ -22,7 +22,7 @@ TEST(crtTest, Matrix2) {
 
     {
         // Test transpose
-        Matrix2f m = Matrix2f::MakeIdentity();
+        Matrix2f m = Matrix2f::makeIdentity();
         m.transpose();
         ASSERT_FLOAT_EQ(m(0, 0), 1.0f);
         ASSERT_FLOAT_EQ(m(1, 0), 0.0f);
@@ -32,7 +32,7 @@ TEST(crtTest, Matrix2) {
 
     {
         // Test inverse
-        Matrix2f m = Matrix2f::MakeIdentity();
+        Matrix2f m = Matrix2f::makeIdentity();
         m.inverse();
         ASSERT_FLOAT_EQ(m(0, 0), 1.0f);
         ASSERT_FLOAT_EQ(m(1, 0), 0.0f);

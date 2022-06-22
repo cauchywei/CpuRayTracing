@@ -33,8 +33,6 @@ namespace crt {
             return hit(ray, 0.0f, std::numeric_limits<float>::max(), outRecord);
         }
 
-        [[nodiscard]] virtual Vector3f getNormal(const Vector3f &p) const = 0;
-
         [[nodiscard]] virtual Vector2f getUV(const Vector3f &p) const = 0;
 
         [[nodiscard]] Vector3f getColor(const Vector3f &p) const {
@@ -64,6 +62,8 @@ namespace crt {
         void setTexture(const Texture2DPtr &texture) {
             _texture = texture;
         }
+
+
 
 //        virtual bool boundingBox(float t0, float t1, AABB& outBox) const = 0;
 
